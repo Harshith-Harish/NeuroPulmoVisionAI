@@ -47,7 +47,7 @@ To set up the project locally, follow these instructions:
 ## Usage
    *To run the application, execute the following command:*
    ```
-   streamlit run app.py
+   streamlit run Introduction.py
    ```
    Once the application is running, open your browser and navigate to http://localhost:8501 to access the interface.
 
