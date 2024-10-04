@@ -27,6 +27,7 @@ Contributions, feedback, and suggestions are welcome as we continue to enhance t
 - [Model Architecture](#model-architecture)
 - [Results](#results)
 - [Screenshots](#screenshots)
+- [Tech Stack](#Tech-Stack)
 
 ## Installation
 
@@ -93,6 +94,6 @@ Chest X-ray Classification Accuracy: 97%
 ![4  Chest_X-Ray_Classification_(LungDX)_Page](https://github.com/user-attachments/assets/3bcfc12c-89ce-4fb5-b62d-8750e97b051c)
 *Chest_X-Ray_Classification_(LungDX)_Page*
 
-## Tech Stack
+## Tech Stack:
 <img alt="Python" src="https://img.shields.io/badge/python-%2314354C.svg?style=for-the-badge&logo=python&logoColor=white"/> <img alt="Tensorflow" src="https://img.shields.io/badge/TensorFlow-%23FF6F00.svg?style=for-the-badge&logo=TensorFlow&logoColor=white"/> <img alt="Keras" src="https://img.shields.io/badge/Keras-%23D00000.svg?style=for-the-badge&logo=Keras&logoColor=white"/> <img alt="OpenCV" src="https://img.shields.io/badge/opencv-%23white.svg?style=for-the-badge&logo=opencv&logoColor=white"/>
 
