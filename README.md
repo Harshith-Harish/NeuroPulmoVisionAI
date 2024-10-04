@@ -1,10 +1,18 @@
 ## Overview
 
-The **Neuropulmo Vision** is a machine learning application designed to assist in the diagnosis of medical conditions by analyzing medical images. This project focuses on two main functionalities: 
+The **NeuropulmoVisionAI** is a machine learning application designed to assist in the diagnosis of medical conditions by analyzing medical images. This project focuses on two main functionalities: 
 1. **Brain Tumor Segmentation** using the U-Net model.
 2. **Chest X-ray Classification** using Convolutional Neural Networks (CNNs).
 
 The system integrates both functionalities into a user-friendly interface developed with Streamlit, providing healthcare professionals with valuable diagnostic support.
+
+## Project Status
+
+**This project is currently in development.** 
+
+While the core functionalities (Brain Tumor Segmentation and Chest X-ray Classification) are implemented, additional features, improvements, and optimizations are planned for future releases. 
+
+Contributions, feedback, and suggestions are welcome as we continue to enhance the system.
 
 ## Features
 
@@ -27,15 +35,15 @@ To set up the project locally, follow these instructions:
 1. **Clone the repository:**
    ```
    git clone https://github.com/yourusername/neuropulmo-vision.git
-
+   ```
 2. **Navigate to the project directory:**
    ```
    cd neuropulmo-vision
-
+   ```
 3. **Install the required packages:**
    ```
    pip install -r requirements.txt
-   
+   ```
 ## Usage
    *To run the application, execute the following command:*
    ```
@@ -46,6 +54,12 @@ To set up the project locally, follow these instructions:
    **Uploading Images**
    Brain MRI: Upload an MRI scan to see the segmented tumor regions.
    Chest X-ray: Upload a chest X-ray image to get classification results.
+
+## Data
+
+Brain MRI Dataset - [click here](https://www.kaggle.com/datasets/mateuszbuda/lgg-mri-segmentation/data)  
+
+Chest X-ray Dataset - [click here](https://www.kaggle.com/datasets/amanullahasraf/covid19-pneumonia-normal-chest-xray-pa-dataset)  
    
 ## Model Architecture
 **U-Net for Brain Tumor Segmentation:**
@@ -62,7 +76,7 @@ A Convolutional Neural Network (CNN) is employed for classifying chest X-ray ima
 
 ## Results:
 
-Brain Tumor Segmentation Accuracy: 98%
+Brain Tumor Segmentation Accuracy: 98%  
 Chest X-ray Classification Accuracy: 97%
    
 ## Screenshots:
@@ -79,5 +93,6 @@ Chest X-ray Classification Accuracy: 97%
 ![4  Chest_X-Ray_Classification_(LungDX)_Page](https://github.com/user-attachments/assets/3bcfc12c-89ce-4fb5-b62d-8750e97b051c)
 *Chest_X-Ray_Classification_(LungDX)_Page*
 
-
+## Tech Stack
+<img alt="Python" src="https://img.shields.io/badge/python-%2314354C.svg?style=for-the-badge&logo=python&logoColor=white"/> <img alt="Tensorflow" src="https://img.shields.io/badge/TensorFlow-%23FF6F00.svg?style=for-the-badge&logo=TensorFlow&logoColor=white"/> <img alt="Keras" src="https://img.shields.io/badge/Keras-%23D00000.svg?style=for-the-badge&logo=Keras&logoColor=white"/> <img alt="OpenCV" src="https://img.shields.io/badge/opencv-%23white.svg?style=for-the-badge&logo=opencv&logoColor=white"/>
 
