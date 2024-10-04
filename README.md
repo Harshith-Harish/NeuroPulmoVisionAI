@@ -8,7 +8,7 @@ The system integrates both functionalities into a user-friendly interface develo
 
 ## Project Status
 
-**This project is currently in development.** 
+**This project is part of my Dissertation for MTech in Software Systems from BITS Pilani. This project is currently in development and focuses on two main functionalities:** 
 
 While the core functionalities (Brain Tumor Segmentation and Chest X-ray Classification) are implemented, additional features, improvements, and optimizations are planned for future releases. 
 
