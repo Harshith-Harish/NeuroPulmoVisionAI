@@ -1,0 +1,296 @@
+# import the required libraries
+
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+import os
+import cv2
+import tensorflow as tf
+from tensorflow.keras import layers, optimizers
+from tensorflow.keras.layers import *
+from tensorflow.keras.models import Model, load_model
+from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
+
+
+# function that would read an image provided the image path, preprocess and return it back
+
+def read_and_preprocess(img_path):
+    img = cv2.imread(img_path, cv2.IMREAD_COLOR) # reading the image
+    img = cv2.resize(img, (256, 256)) # resizing it (I just like it to be powers of 2)
+    img = np.array(img, dtype='float32') # convert its datatype so that it could be normalized
+    img = img/255 # normalization (now every pixel is in the range of 0 and 1)
+    return img
+	
+	
+X_train = [] # To store train images
+y_train = [] # To store train labels
+
+# labels -
+# 0 - Covid
+# 1 - Viral Pneumonia
+# 2 - Normal
+
+train_path = './dataset/train/' # path containing training image samples
+
+
+for folder in os.scandir(train_path):
+    for entry in os.scandir(train_path + folder.name):
+
+        X_train.append(read_and_preprocess(train_path + folder.name + '/' + entry.name))
+        
+        if folder.name[0]=='C':
+            y_train.append(0) # Covid
+        elif folder.name[0]=='V':
+            y_train.append(1) # Viral Pneumonia
+        else:
+            y_train.append(2) # Normal
+			
+			
+			
+X_train = np.array(X_train)
+X_train.shape # We have 1955 training samples in total
+
+y_train = np.array(y_train)
+y_train.shape
+
+covid_count = len(y_train[y_train==0])
+pneumonia_count = len(y_train[y_train==1])
+normal_count = len(y_train[y_train==2])
+
+plt.title("Train Images for Each Label")
+plt.bar(["Covid", "Viral Pneumonia", "Normal"],[covid_count, pneumonia_count, normal_count])
+
+# We have more samples of Normal and Viral Pneumonia than Covid
+
+# Plotting 2 images per disease
+
+import random
+
+title = {0:"Covid", 1:"Viral Pneumonia", 2:"Normal"}
+
+rows = 2
+columns = 3
+
+for i in range(2):
+    
+    fig = plt.figure(figsize=(7,7))
+    
+    fig.add_subplot(rows, columns, 1)
+    pos = random.randint(0, covid_count)
+    plt.imshow(X_train[pos])
+    plt.title(title[y_train[pos]])
+    
+    fig.add_subplot(rows, columns, 2)
+    pos = random.randint(covid_count, covid_count+pneumonia_count)
+    plt.imshow(X_train[pos])
+    plt.title(title[y_train[pos]])
+    
+    fig.add_subplot(rows, columns, 3)
+    pos = random.randint(covid_count+pneumonia_count, covid_count+pneumonia_count+normal_count)
+    plt.imshow(X_train[pos])
+    plt.title(title[y_train[pos]])
+	
+	
+#Image Augmentation
+
+plt.imshow(X_train[0])
+plt.title("Original Image")
+
+X_new = np.fliplr(X_train[0])
+plt.imshow(X_new)
+plt.title("Horizontaly Flipped Image")
+
+X_aug = []
+y_aug = []
+
+for i in range(0, len(y_train)):
+    X_new = np.fliplr(X_train[i])
+    X_aug.append(X_new)
+    y_aug.append(y_train[i])
+	
+X_aug = np.array(X_aug)
+y_aug = np.array(y_aug)
+
+
+X_train = np.append(X_train, X_aug, axis=0) # appending augmented images to original training samples
+X_train.shape
+##output
+(3910, 256, 256, 3)
+
+
+y_train = np.append(y_train, y_aug, axis=0)
+y_train.shape
+##output
+(3910,)
+# Now we have 3910 samples in total
+
+
+## Split dataset for Training and Validation
+
+from sklearn.model_selection import train_test_split
+
+# We have splitted our data in a way that - 
+# 1. The samples are shuffled
+# 2. The ratio of each class is maintained (stratify)
+# 3. We get same samples every time we split our data (random state)
+X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.15, shuffle=True, stratify=y_train, random_state=123)
+
+# we will use 3323 images for training the model
+y_train.shape
+(3323,)
+
+
+
+# we will use 587 images for validating the model's performance
+y_val.shape
+(587,)
+
+
+#training model
+model = tf.keras.Sequential([
+    Conv2D(filters=32, kernel_size=(2,2), activation='relu', input_shape=(256, 256, 3)),
+    MaxPooling2D((4,4)),
+    
+    Conv2D(filters=64, kernel_size=(3,3), activation='relu', padding='same'),
+    MaxPooling2D((3,3)),
+    Dropout(0.3), # for regularization
+    
+    Conv2D(filters=64, kernel_size=(4,4), activation='relu', padding='same'),
+    Conv2D(filters=128, kernel_size=(5,5), activation='relu', padding='same'),
+    MaxPooling2D((2,2)),
+    Dropout(0.4),
+    
+    Conv2D(filters=128, kernel_size=(5,5), activation='relu', padding='same'),
+    MaxPooling2D((2,2)),
+    Dropout(0.5),
+    
+    Flatten(), # flattening for feeding into ANN
+    Dense(512, activation='relu'),
+    Dropout(0.5),
+    Dense(256, activation='relu'),
+    Dropout(0.3),
+    Dense(128, activation='relu'),
+    Dense(3, activation='softmax')
+])
+
+model.summary()
+
+# Slowing down the learning rate
+opt = optimizers.Adam(learning_rate=0.0001)
+
+# compile the model
+model.compile(loss = 'sparse_categorical_crossentropy', optimizer=opt, metrics= ["accuracy"])
+
+
+# using early stopping to exit training if validation loss is not decreasing even after certain epochs.
+earlystopping = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=20)
+
+# saving the best model with least validation loss
+checkpointer = ModelCheckpoint(filepath="covid_classifier_weights.h5", verbose=1, save_best_only=True)
+
+history = model.fit(X_train, y_train, epochs = 100, validation_data=(X_val, y_val), batch_size=32, shuffle=True, callbacks=[earlystopping, checkpointer])
+
+
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
+plt.title('model loss')
+plt.ylabel('loss')
+plt.xlabel('epoch')
+plt.legend(['train', 'test'], loc='upper right')
+plt.show()
+
+
+plt.plot(history.history['accuracy'])
+plt.plot(history.history['val_accuracy'])
+plt.title('model accuracy')
+plt.ylabel('accuracy')
+plt.xlabel('epoch')
+plt.legend(['train', 'test'], loc='upper left')
+plt.show()
+
+## Evaluating the Saved Model Performance
+
+# Load pretrained model (best saved one)
+with open('covid_classifier_model.json', 'r') as json_file:
+    json_savedModel= json_file.read()
+# load the model  
+model = tf.keras.models.model_from_json(json_savedModel)
+model.load_weights('covid_classifier_weights.h5')
+model.compile(loss = 'sparse_categorical_crossentropy', optimizer=opt, metrics= ["accuracy"])
+
+##loading test images
+X_test = [] # To store test images
+y_test = [] # To store test labels
+
+test_path = './dataset/test/'
+
+for folder in os.scandir(test_path):
+    for entry in os.scandir(test_path + folder.name):
+
+        X_test.append(read_and_preprocess(test_path + folder.name + '/' + entry.name))
+        
+        if folder.name[0]=='C':
+            y_test.append(0)
+        elif folder.name[0]=='V':
+            y_test.append(1)
+        else:
+            y_test.append(2)
+            
+X_test = np.array(X_test)
+y_test = np.array(y_test)
+
+X_test.shape # We have 185 images for testing
+
+covid_count = len(y_test[y_test==0])
+pneumonia_count = len(y_test[y_test==1])
+normal_count = len(y_test[y_test==2])
+
+plt.title("Test Images for Each Label")
+plt.bar(["Covid", "Viral Pneumonia", "Normal"],[covid_count, pneumonia_count, normal_count])
+
+# making predictions
+predictions = model.predict(X_test)
+
+predictions.shape
+
+# Obtain the predicted class from the model prediction
+predict = []
+
+for i in predictions:
+  predict.append(np.argmax(i))
+
+predict = np.asarray(predict)
+
+# Obtain the accuracy of the model
+from sklearn.metrics import accuracy_score
+
+accuracy = accuracy_score(y_test, predict)
+accuracy
+##output
+0.9945945945945946
+
+# plot the confusion matrix
+from sklearn.metrics import confusion_matrix
+
+cm = confusion_matrix(y_test, predict)
+plt.figure(figsize = (7,7))
+sns.heatmap(cm, annot=True, cmap='Blues')
+
+# The model misclassified one Covid case as Normal
+
+
+from sklearn.metrics import classification_report
+
+report = classification_report(y_test, predict)
+print(report)
+
+              precision    recall  f1-score   support
+
+           0       1.00      0.98      0.99        58
+           1       1.00      1.00      1.00        63
+           2       0.98      1.00      0.99        64
+
+    accuracy                           0.99       185
+   macro avg       0.99      0.99      0.99       185
+weighted avg       0.99      0.99      0.99       185
+
