@@ -1,6 +1,6 @@
 ## Overview
 
-The **NeuropulmoVisionAI** is a machine learning application designed to assist in the diagnosis of medical conditions by analyzing medical images. This project is part of my Dissertation for MTech in Software Systems from BITS Pilani.  
+The **NeuropulmoVisionAI** is a machine learning application designed to assist in the diagnosis of medical conditions by analyzing medical images.  
 
 This project focuses on two main functionalities:  
 1. **Brain Tumor Segmentation** using the U-Net model.
